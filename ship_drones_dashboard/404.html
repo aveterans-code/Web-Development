@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<!--
+	Student Name: Geoff King
+	File Name: 404.html
+	Date: August 11, 2025
+	CIS 339 Final Project - 404 Error Page
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="404 Error - Page not found on USS Bootstrap Naval Dashboard">
+    <meta name="robots" content="noindex, nofollow">
+    <title>404 - Navigation Error | USS Bootstrap Naval Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Special 404 page animations */
+        .radar-404 {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+            position: relative;
+            animation: pulse-404 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-404 {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            color: #dc2626;
+            text-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+            animation: glitch 2s linear infinite;
+        }
+        
+        @keyframes glitch {
+            0%, 100% { text-shadow: 0 0 20px rgba(220, 38, 38, 0.5); }
+            25% { text-shadow: -2px 0 #0ea5e9, 2px 0 #10b981; }
+            50% { text-shadow: 2px 0 #ff6b35, -2px 0 #fbbf24; }
+            75% { text-shadow: 0 0 20px rgba(220, 38, 38, 0.8); }
+        }
+        
+        .submarine {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+
+<body>
+    <!--Emergency header -->
+    <header class="bg-dark text-white py-2 border-bottom border-danger">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                </div>
+                <div class="col">
+                    <h1 class="h4 mb-0 text-uppercase">Navigation Error Detected</h1>
+                    <small class="text-danger">COORDINATES NOT FOUND</small>
+                </div>
+                <div class="col-auto">
+                    <span class="badge bg-danger blink">ALERT</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <!-- Main Error Display -->
+                <div class="card bg-dark text-white">
+                    <div class="card-body py-5">
+                        <div class="error-code">404</div>
+                        
+                        <h2 class="text-warning mt-3">
+                            <i class="fas fa-compass fa-spin"></i> NAVIGATION ERROR
+                        </h2>
+                        
+                        <p class="lead mt-3">
+                            The coordinates you've entered are outside our operational area.
+                        </p>
+                        
+                        <!-- Radar Animation -->
+                        <div class="radar-404 my-4">
+                            <svg width="300" height="300">
+                                <!-- Radar circles -->
+                                <circle cx="150" cy="150" r="50" fill="none" stroke="#0ea5e9" stroke-width="1" opacity="0.5"/>
+                                <circle cx="150" cy="150" r="100" fill="none" stroke="#0ea5e9" stroke-width="1" opacity="0.3"/>
+                                <circle cx="150" cy="150" r="140" fill="none" stroke="#0ea5e9" stroke-width="1" opacity="0.2"/>
+                                
+                                <!-- Radar sweep -->
+                                <line x1="150" y1="150" x2="150" y2="10" stroke="#10b981" stroke-width="2" opacity="0.7">
+                                    <animateTransform
+                                        attributeName="transform"
+                                        attributeType="XML"
+                                        type="rotate"
+                                        from="0 150 150"
+                                        to="360 150 150"
+                                        dur="3s"
+                                        repeatCount="indefinite"/>
+                                </line>
+                                
+                                <!-- Lost signal indicator -->
+                                <text x="150" y="150" text-anchor="middle" fill="#dc2626" font-size="20" font-weight="bold">
+                                    TARGET LOST
+                                </text>
+                            </svg>
+                        </div>
+                        
+                        <!-- Error Details -->
+                        <div class="alert alert-danger" role="alert">
+                            <h5 class="alert-heading">
+                                <i class="fas fa-satellite-dish"></i> Signal Lost
+                            </h5>
+                            <p class="mb-0">
+                                Unable to establish connection with the requested resource.
+                                The page may have been moved, deleted, or never existed.
+                            </p>
+                        </div>
+                        
+                        <!-- Possible Causes -->
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="card bg-secondary text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-link-slash fa-2x mb-2"></i>
+                                        <h6>Broken Link</h6>
+                                        <small>The URL may be incorrect</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-secondary text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-file-excel fa-2x mb-2"></i>
+                                        <h6>Page Removed</h6>
+                                        <small>Content no longer available</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card bg-secondary text-white">
+                                    <div class="card-body">
+                                        <i class="fas fa-keyboard fa-2x mb-2"></i>
+                                        <h6>Typo Error</h6>
+                                        <small>Check the URL spelling</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!--Recovery Options -->
+                        <div class="mt-5">
+                            <h4 class="text-info">Recovery Options</h4>
+                            <div class="btn-group" role="group">
+                                <a href="index.html" class="btn btn-success">
+                                    <i class="fas fa-home"></i> Return to Bridge
+                                </a>
+                                <a href="sitemap.html" class="btn btn-info">
+                                    <i class="fas fa-sitemap"></i> View Sitemap
+                                </a>
+                                <button onclick="history.back()" class="btn btn-warning">
+                                    <i class="fas fa-arrow-left"></i> Go Back
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!--Search box -->
+                        <div class="mt-4">
+                            <form class="d-flex justify-content-center" onsubmit="searchSite(event)">
+                                <div class="input-group" style="max-width: 500px;">
+                                    <span class="input-group-text bg-dark border-secondary">
+                                        <i class="fas fa-search text-tactical"></i>
+                                    </span>
+                                    <input type="search" class="form-control" placeholder="Search for content..." required>
+                                    <button class="btn btn-outline-success" type="submit">Search</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Submarine Easter Egg -->
+                        <div class="submarine mt-5">
+                            <i class="fas fa-water fa-3x text-primary opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Helpful Links -->
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Quick Navigation</h5>
+                        <div class="row">
+                            <div class="col-6 col-md-3">
+                                <a href="index.html" class="text-decoration-none">
+                                    <i class="fas fa-ship"></i> Bridge
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a href="drones.html" class="text-decoration-none">
+                                    <i class="fas fa-helicopter"></i> Drones
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a href="mission_control.html" class="text-decoration-none">
+                                    <i class="fas fa-map-marked-alt"></i> Missions
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <a href="reports.html" class="text-decoration-none">
+                                    <i class="fas fa-chart-line"></i> Reports
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Error Code Reference -->
+                <div class="mt-3">
+                    <small class="text-muted">
+                        Error Reference: 404 | 
+                        Timestamp: <span id="error-timestamp"></span> | 
+                        <a href="#" onclick="reportError()" class="text-decoration-none">Report this error</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-3">
+        <div class="container-fluid">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <i class="fas fa-exclamation-triangle"></i> Error 404
+                </div>
+                <div class="col-md-4">
+                    <a href="sitemap.html" class="text-decoration-none text-tactical">
+                        <i class="fas fa-sitemap"></i> Sitemap
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Navigation System v2.0</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Set timestamp
+        document.getElementById('error-timestamp').textContent = new Date().toISOString();
+        
+        // Search function
+        function searchSite(event) {
+            event.preventDefault();
+            const query = event.target.querySelector('input').value;
+            alert(`Searching for: "${query}"\n\nRedirecting to search results...`);
+            // In production, this would redirect to actual search results
+        }
+        
+        // Report error function
+        function reportError() {
+            alert('Error report submitted. Our navigation team will investigate.\n\nTicket #: ERR-' + 
+                  Math.floor(Math.random() * 10000).toString().padStart(4, '0'));
+        }
+        
+        // Log 404 error ( analytics)
+        console.error('404 Error:', {
+            page: window.location.pathname,
+            referrer: document.referrer,
+            timestamp: new Date().toISOString()
+        });
+        
+        // Auto-redirect after 30 seconds (made optional?)
+        let countdown = 30;
+        const autoRedirect = setInterval(() => {
+            countdown--;
+            if (countdown <= 0) {
+                clearInterval(autoRedirect);
+                // window.location.href = 'index.html';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

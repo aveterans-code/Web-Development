@@ -1,0 +1,643 @@
+/*
+	Student Name: Geoff King
+	File Name: style.css
+	Date: August 11, 2025
+	Final Project - Naval Operations Dashboard
+	with Drone-Ready Features and Radar
+*/
+
+/* 
+   MILITARY COLOR PALETTE
+   */
+:root {
+    --navy-haze-gray: #7C8B8C;      /* US Navy standard hull color */
+    --navy-deck-gray: #4A5568;      /* Darker deck/shadow color */
+    --navy-light-gray: #A8B2B3;     /* Highlights */
+    --navy-black: #1a202c;          /* Instruments/text  */
+    --warning-orange: #ff6b35;      /* Naval warning orange */
+    --danger-red: #dc2626;           /* Alert red */
+    --success-green: #10b981;        /* System go  */
+    --tactical-blue: #0ea5e9;        /* Radar/sonar blue */
+    --radar-green: #00ff00;          /* Radar sweep green */
+}
+
+/* 
+   BASE STYLES
+   */
+body {
+    font-family: 'Courier New', 'SF Mono', Monaco, monospace;
+    background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%);
+    color: #e2e8f0;
+    min-height: 100vh;
+}
+
+/* Military-style navigation */
+.navbar {
+    background: linear-gradient(180deg, var(--navy-black) 0%, var(--navy-deck-gray) 100%) !important;
+    border-bottom: 2px solid var(--warning-orange);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    color: var(--success-green) !important;
+}
+
+/* 
+   ENHANCED RADAR SWEEP ANIMATIONS
+   */
+
+/* Wiper-style radar sweep for side view */
+.radar-sweep-wiper {
+    animation: radar-wiper 3s linear infinite;
+    transform-origin: 320px 60px;  /* Centered on comms tower */
+}
+
+@keyframes radar-wiper {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Top view radar sweep */
+.radar-sweep-top {
+    animation: radar-wiper-top 3s linear infinite;
+    transform-origin: 400px 180px;  /* Centered on top view comms */
+}
+
+@keyframes radar-wiper-top {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Radar fade trail effect */
+.radar-sweep-wiper::after,
+.radar-sweep-top::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, 
+        transparent 0%, 
+        rgba(0, 255, 0, 0.1) 50%, 
+        transparent 100%);
+    animation: fade-trail 3s linear infinite;
+}
+
+@keyframes fade-trail {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 0.3; }
+}
+
+/* 
+   SHIP VISUALIZATION STYLES
+   */
+#ship-svg,
+#ship-svg-carousel {
+    background: linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%);
+    border-radius: 8px;
+    border: 2px solid var(--tactical-blue);
+    box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+}
+
+/* Ship system states */
+.system-online { fill: var(--success-green); }
+.system-warning { fill: var(--warning-orange); }
+.system-critical { 
+    fill: var(--danger-red);
+    animation: pulse 1.5s infinite;
+}
+.system-offline { fill: var(--navy-light-gray); }
+.system-standby { fill: var(--tactical-blue); }
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* 
+   CARD STYLES - MILITARY THEME
+   */
+.card {
+    background: rgba(26, 32, 44, 0.9);
+    border: 1px solid var(--navy-haze-gray);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.card-header {
+    background: linear-gradient(90deg, var(--navy-deck-gray), var(--navy-black));
+    color: var(--success-green);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-bottom: 2px solid var(--tactical-blue);
+}
+
+/* 
+   TACTICAL DISPLAY ELEMENTS
+   */
+.tactical-grid {
+    background-image: 
+        linear-gradient(rgba(14, 165, 233, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(14, 165, 233, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Status badges  */
+.badge {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+.bg-success { 
+    background-color: var(--success-green) !important;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+}
+
+.bg-warning { 
+    background-color: var(--warning-orange) !important;
+    box-shadow: 0 0 15px rgba(255, 107, 53, 0.5);
+}
+
+.bg-danger { 
+    background-color: var(--danger-red) !important;
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.5);
+    animation: alert-flash 2s infinite;
+}
+
+@keyframes alert-flash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* 
+   Clickable elements & interactions
+   */
+.clickable {
+    cursor: crosshair;
+    transition: all 0.3s ease;
+}
+
+.clickable:hover {
+    stroke: var(--tactical-blue);
+    stroke-width: 3;
+    filter: brightness(1.2) drop-shadow(0 0 10px rgba(14, 165, 233, 0.8));
+}
+
+/* System labels ( military stencil style ) */
+.system-label {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: bold;
+    fill: white;
+    text-anchor: middle;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    pointer-events: none;
+}
+
+/* Hide hover labels by default, show on hover */
+.hover-label {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* Show labels when hovering over clickable elements */
+.clickable:hover ~ .hover-label,
+.clickable:hover .hover-label,
+g:hover .hover-label {
+    opacity: 1;
+}
+
+/* 
+   CAROUSEL miltary theme
+   */
+.carousel {
+    border: 2px solid var(--navy-haze-gray);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.carousel-inner {
+    background: var(--navy-deck-gray);
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: drop-shadow(0 0 5px var(--tactical-blue));
+}
+
+/* 
+   TABLES  tactical data display
+   */
+.table-tactical {
+    color: var(--success-green);
+    background: rgba(26, 32, 44, 0.95);
+    font-family: 'Courier New', monospace;
+}
+
+.table-tactical thead {
+    background: var(--navy-deck-gray);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.table-tactical tbody tr:hover {
+    background: rgba(14, 165, 233, 0.1);
+    cursor: pointer;
+}
+
+/* 
+   ACCORDION mission briefing style
+   */
+.accordion-item {
+    background: var(--navy-black);
+    border: 1px solid var(--navy-haze-gray);
+}
+
+.accordion-button {
+    background: linear-gradient(90deg, var(--navy-deck-gray), var(--navy-black));
+    color: var(--success-green);
+    font-weight: bold;
+    letter-spacing: 0.05em;
+}
+
+.accordion-button:not(.collapsed) {
+    background: var(--navy-deck-gray);
+    color: var(--tactical-blue);
+    box-shadow: inset 0 -2px 0 var(--tactical-blue);
+}
+
+/* 
+   FORMS 
+   */
+.form-control, .form-select {
+    background: rgba(26, 32, 44, 0.8);
+    border: 1px solid var(--navy-haze-gray);
+    color: var(--success-green);
+    font-family: 'Courier New', monospace;
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(26, 32, 44, 0.95);
+    border-color: var(--tactical-blue);
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+    color: var(--success-green);
+}
+
+/* Form labels visibility */
+.form-label {
+    color: var(--success-green) !important;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+}
+
+/* Icons in form labels */
+.form-label i {
+    color: var(--tactical-blue) !important;
+    margin-right: 8px;
+}
+
+/* Required field asterisks */
+.form-label .text-danger {
+    color: var(--danger-red) !important;
+    font-weight: bold;
+}
+
+/* Form controls in mission planning */
+.form-control, .form-select {
+    background: rgba(26, 32, 44, 0.95) !important;
+    border: 2px solid var(--navy-haze-gray) !important;
+    color: var(--success-green) !important;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(26, 32, 44, 1) !important;
+    border-color: var(--tactical-blue) !important;
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.6) !important;
+    color: var(--success-green) !important;
+}
+
+/* Placeholder text */
+.form-control::placeholder {
+    color: var(--navy-light-gray) !important;
+    opacity: 0.8;
+}
+
+/* Form validation feedback */
+.invalid-feedback {
+    color: var(--danger-red) !important;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+}
+
+.valid-feedback {
+    color: var(--success-green) !important;
+    font-weight: bold;
+}
+
+/* Form check labels (for checkboxes/radio buttons) */
+.form-check-label {
+    color: var(--success-green) !important;
+    font-family: 'Courier New', monospace;
+}
+
+/* Small helper text */
+.form-text, small.text-muted {
+    color: var(--navy-light-gray) !important;
+}
+
+/* 
+   BUTTONS & TACTICAL CONTROLS
+   */
+.btn-tactical-primary {
+    background: linear-gradient(135deg, var(--tactical-blue), #0284c7);
+    border: 1px solid var(--tactical-blue);
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.3s;
+}
+
+.btn-tactical-primary:hover {
+    background: var(--tactical-blue);
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.7);
+    transform: translateY(-2px);
+    color: white;
+}
+
+.btn-tactical-danger {
+    background: var(--danger-red);
+    border: 1px solid #ef4444;
+    color: white;
+    animation: danger-pulse 2s infinite;
+}
+
+@keyframes danger-pulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(220, 38, 38, 0.5); }
+    50% { box-shadow: 0 0 20px rgba(220, 38, 38, 0.8); }
+}
+
+/* 
+   DRONE-specific styles
+   */
+.drone-card {
+    background: linear-gradient(135deg, rgba(26, 32, 44, 0.95), rgba(74, 85, 104, 0.95));
+    border: 1px solid var(--tactical-blue);
+    position: relative;
+    overflow: hidden;
+}
+
+.drone-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--tactical-blue), transparent, var(--tactical-blue));
+    z-index: -1;
+    animation: drone-scan 3s linear infinite;
+}
+
+@keyframes drone-scan {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Drone telemetry indicator */
+#drone-link-status {
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+}
+
+#drone-link-status.connected {
+    background: var(--success-green) !important;
+    animation: telemetry-pulse 1s ease-in-out infinite;
+}
+
+@keyframes telemetry-pulse {
+    0%, 100% { 
+        box-shadow: 0 0 5px rgba(16, 185, 129, 0.5); 
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.8); 
+    }
+}
+
+/* 
+   SONAR ping effects
+   */
+.sonar-ping {
+    animation: sonar-pulse 2s ease-out infinite;
+}
+
+@keyframes sonar-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 30px rgba(14, 165, 233, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
+    }
+}
+
+/* 
+   Connection status indicator
+   */
+.connection-status {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    z-index: 1000;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.connection-status.connected {
+    background: var(--success-green);
+    color: var(--navy-black);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.7);
+}
+
+.connection-status.disconnected {
+    background: var(--danger-red);
+    color: white;
+    animation: connection-alert 1s infinite;
+}
+
+@keyframes connection-alert {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* 
+   Telemetry data styles
+   */
+#telemetry-rate {
+    font-size: 0.7rem;
+    animation: data-flow 1s ease-in-out infinite;
+}
+
+@keyframes data-flow {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* 
+   FOOTER
+   */
+footer {
+    background: linear-gradient(180deg, var(--navy-deck-gray), var(--navy-black));
+    border-top: 2px solid var(--tactical-blue);
+    color: var(--navy-light-gray);
+    font-family: 'Courier New', monospace;
+}
+
+/* 
+   Breadcrumb navigation
+   */
+.breadcrumb {
+    background: rgba(74, 85, 104, 0.5) !important;
+    border: 1px solid var(--tactical-blue);
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.breadcrumb-item {
+    color: var(--success-green) !important;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.breadcrumb-item.active {
+    color: var(--success-green) !important;
+}
+
+.breadcrumb-item a {
+    color: var(--tactical-blue) !important;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--success-green) !important;
+    text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: var(--tactical-blue);
+    content: "/";
+}
+
+/* 
+   SPACING ADJUSTMENTS
+   */
+
+/* Tighter spacing for main content cards near navbar */
+.container-fluid > .row.mt-1 {
+    margin-top: 5px !important;  
+}
+
+/* Adjust breadcrumb spacing */
+nav[aria-label="breadcrumb"] {
+    margin-bottom: 0 !important;
+}
+
+/* 
+   RESPONSIVE ADJUSTMENTS
+   */
+@media (max-width: 768px) {
+    .system-label {
+        font-size: 9px;
+    }
+    
+    .card-header {
+        font-size: 0.9rem;
+    }
+    
+    /* Adjust radar sweep for mobile */
+    .radar-sweep-wiper,
+    .radar-sweep-top {
+        animation-duration: 4s;  /* Slower on mobile for performance */
+    }
+}
+
+/* 
+   UTILITY CLASSES
+   */
+.text-tactical { color: var(--tactical-blue) !important; }
+.text-alert { color: var(--warning-orange) !important; }
+.bg-military { background: var(--navy-deck-gray) !important; }
+.border-tactical { border-color: var(--tactical-blue) !important; }
+
+/* Show More/Less Button Style */
+.show-more-btn {
+    background: transparent;
+    border: 1px solid var(--tactical-blue);
+    color: var(--tactical-blue);
+    padding: 5px 15px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.show-more-btn:hover {
+    background: var(--tactical-blue);
+    color: white;
+    box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+}
+
+/* 
+   404 PAGE SPECIAL EFFECTS
+   */
+.blink {
+    animation: blink-animation 1s steps(5, start) infinite;
+}
+
+@keyframes blink-animation {
+    to { visibility: hidden; }
+}
+
+/* 
+   PRINT STYLES
+   */
+@media print {
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .navbar, footer, .btn, .carousel-control-prev, .carousel-control-next {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #000;
+        page-break-inside: avoid;
+    }
+}

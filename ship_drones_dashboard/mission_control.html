@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<!--
+	Student Name: Geoff King
+	File Name: mission_control.html
+	Date: August 9, 2025
+	CIS 339 Final Project - Mission Control Center
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Naval mission planning and control center for coordinating fleet operations and drone deployments">
+    <meta name="keywords" content="mission planning, naval operations, tactical control, fleet coordination">
+    <title>Mission Control | USS Bootstrap Naval Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Header Banner -->
+    <header class="bg-dark text-white py-2 border-bottom border-warning">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <i class="fas fa-satellite fa-2x text-tactical"></i>
+                </div>
+                <div class="col">
+                    <h1 class="h4 mb-0 text-uppercase">Mission Control Center</h1>
+                    <small class="text-muted">TACTICAL OPERATIONS COMMAND</small>
+                </div>
+                <div class="col-auto">
+                    <span id="mission-clock" class="badge bg-danger">00:00:00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-ship"></i> USS BOOTSTRAP
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-home"></i> Bridge
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="drones.html">
+                            <i class="fas fa-helicopter"></i> Drone Ops
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="mission_control.html">
+                            <i class="fas fa-map-marked-alt"></i> Missions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reports.html">
+                            <i class="fas fa-chart-line"></i> Reports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="container-fluid mt-2">
+        <ol class="breadcrumb bg-dark px-3 py-2">
+            <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">
+                <i class="fas fa-home"></i> Bridge</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="fas fa-map-marked-alt"></i> Mission Control</li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        <!-- Mission Status Overview -->
+        <div class="row mt-3">
+            <div class="col-lg-8">
+                <!-- Mission Planning Form with Validation -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-clipboard-list"></i> New Mission Planning
+                        <span class="badge bg-info float-end">FORM ID: MP-2025-08</span>
+                    </div>
+                    <div class="card-body">
+                        <form id="missionPlanningForm" class="needs-validation" novalidate onsubmit="submitMission(event)">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="missionName" class="form-label">
+                                            <i class="fas fa-tag"></i> Mission Name <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="missionName" 
+                                               pattern="[A-Z0-9\s\-]{3,30}" required
+                                               placeholder="e.g., OPERATION SEAHAWK">
+                                        <div class="invalid-feedback">
+                                            Mission name must be 3-30 characters (uppercase-ONLY letters, numbers, spaces, hyphens) YOU MAY NOT USE LOWERCASE LETTERS!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="missionType" class="form-label">
+                                            <i class="fas fa-list"></i> Mission Type <span class="text-danger">*</span>
+                                        </label>
+                                        <select class="form-select" id="missionType" required>
+                                            <option value="">Select mission type...</option>
+                                            <option value="patrol">Patrol</option>
+                                            <option value="surveillance">Surveillance</option>
+                                            <option value="escort">Escort</option>
+                                            <option value="sar">Search & Rescue</option>
+                                            <option value="recon">Reconnaissance</option>
+                                            <option value="training">Training Exercise</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select a valid mission type
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="priority" class="form-label">
+                                            <i class="fas fa-exclamation-circle"></i> Priority Level
+                                        </label>
+                                        <select class="form-select" id="priority" required>
+                                            <option value="low">Routine</option>
+                                            <option value="standard" selected>Standard</option>
+                                            <option value="high">High</option>
+                                            <option value="critical">Critical</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="duration" class="form-label">
+                                            <i class="fas fa-clock"></i> Est. Duration (hours) <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="number" class="form-control" id="duration" 
+                                               min="1" max="168" required placeholder="1-168">
+                                        <div class="invalid-feedback">
+                                            Duration must be between 1 and 168 hours
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="startTime" class="form-label">
+                                            <i class="fas fa-calendar-alt"></i> Start Time <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="datetime-local" class="form-control" id="startTime" required>
+                                        <div class="invalid-feedback">
+                                            Please select a valid start time
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Coordinates Section -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="latitude" class="form-label">
+                                            <i class="fas fa-map-marker-alt"></i> Target Latitude
+                                        </label>
+                                        <input type="text" class="form-control" id="latitude" 
+                                               pattern="^[-]?([0-8]?[0-9]|90)\.[0-9]{1,6}$"
+                                               placeholder="e.g., 41.2345">
+                                        <div class="invalid-feedback">
+                                            Enter valid latitude (-90 to 90)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="longitude" class="form-label">
+                                            <i class="fas fa-map-marker-alt"></i> Target Longitude
+                                        </label>
+                                        <input type="text" class="form-control" id="longitude" 
+                                               pattern="^[-]?((1[0-7][0-9])|([0-9]?[0-9]))\.?[0-9]{1,6}$"
+                                               placeholder="e.g., -70.5678">
+                                        <div class="invalid-feedback">
+                                            Enter valid longitude (-180 to 180)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!--  Assets Assignment -->
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    <i class="fas fa-helicopter"></i> Assign Drone Assets
+                                </label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="drone1" value="UAV-001">
+                                    <label class="form-check-label" for="drone1">
+                                        UAV-001 "Eagle Eye" <span class="badge bg-success">Available</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="drone2" value="UAV-002">
+                                    <label class="form-check-label" for="drone2">
+                                        UAV-002 "Sea Hawk" <span class="badge bg-warning">In Flight</span>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="drone3" value="UAV-003">
+                                    <label class="form-check-label" for="drone3">
+                                        UAV-003 "Storm Watch" <span class="badge bg-danger">Low Battery</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Mission Notes -->
+                            <div class="mb-3">
+                                <label for="missionNotes" class="form-label">
+                                    <i class="fas fa-sticky-note"></i> Mission Notes
+                                </label>
+                                <textarea class="form-control" id="missionNotes" rows="3" 
+                                          maxlength="500" placeholder="Additional mission details (max 500 characters)"></textarea>
+                                <small class="text-muted">
+                                    <span id="charCount">0</span>/500 characters
+                                </small>
+                            </div>
+
+                            <!-- Authorization -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="officerName" class="form-label">
+                                            <i class="fas fa-user"></i> Authorizing Officer <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="text" class="form-control" id="officerName" required
+                                               pattern="[A-Za-z\s\.\-]{3,50}"
+                                               placeholder="Full name">
+                                        <div class="invalid-feedback">
+                                            Please enter a valid officer name (3-50 characters)
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="authCode" class="form-label">
+                                            <i class="fas fa-key"></i> Authorization Code <span class="text-danger">*</span>
+                                        </label>
+                                        <input type="password" class="form-control" id="authCode" required
+                                               pattern="[A-Z0-9]{6,10}"
+                                               placeholder="6-10 characters, uppercase & numbers">
+                                        <div class="invalid-feedback">
+                                            Auth code must be 6-10 characters (UPPERCASE letters and numbers only)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Form Actions -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                <button type="reset" class="btn btn-secondary">
+                                    <i class="fas fa-undo"></i> Clear Form
+                                </button>
+                                <button type="submit" class="btn btn-tactical-primary">
+                                    <i class="fas fa-paper-plane"></i> Submit Mission Plan
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mission Queue & Status -->
+            <div class="col-lg-4">
+                <!-- Active Missions -->
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <i class="fas fa-tasks"></i> Active Missions
+                        <span class="badge bg-success float-end">3 Active</span>
+                    </div>
+                    <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                        <div class="list-group">
+                            <div class="list-group-item bg-dark text-white">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">OPERATION TRIDENT</h6>
+                                    <small class="badge bg-danger">HIGH</small>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" 
+                                         style="width: 65%"></div>
+                                </div>
+                                <small>ETA: 2:45:00</small>
+                            </div>
+                            <div class="list-group-item bg-dark text-white">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">PATROL ALPHA-7</h6>
+                                    <small class="badge bg-warning">STANDARD</small>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-info" style="width: 30%"></div>
+                                </div>
+                                <small>ETA: 5:15:00</small>
+                            </div>
+                            <div class="list-group-item bg-dark text-white">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">TRAINING EX-204</h6>
+                                    <small class="badge bg-success">LOW</small>
+                                </div>
+                                <div class="progress" style="height: 10px;">
+                                    <div class="progress-bar bg-warning" style="width: 90%"></div>
+                                </div>
+                                <small>ETA: 0:30:00</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Conditions card -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cloud-sun"></i> Mission Weather
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-success" role="alert">
+                            <i class="fas fa-check-circle"></i> Weather conditions: FAVORABLE
+                        </div>
+                        <ul class="list-unstyled small">
+                            <li><i class="fas fa-wind"></i> Wind: 12 kts</li>
+                            <li><i class="fas fa-water"></i> Sea State: Moderate</li>
+                            <li><i class="fas fa-eye"></i> Visibility: 15 nm</li>
+                            <li><i class="fas fa-cloud"></i> Cloud Cover: 30%</li>
+                        </ul>
+                        <button class="btn btn-sm btn-outline-info w-100">
+                            <i class="fas fa-sync"></i> Update Weather
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mission History Table ( NEEDS WORK ) -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-history"></i> Mission History
+                        <button class="btn btn-sm btn-outline-success float-end" onclick="toggleMissionHistory()">
+                            <span id="history-toggle-text">Show All</span>
+                            <i class="fas fa-chevron-down ms-1"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-tactical">
+                                <thead>
+                                    <tr>
+                                        <th>Mission ID</th>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Start Time</th>
+                                        <th>Duration</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mission-history-tbody">
+                                    <tr>
+                                        <td>#M-2025-001</td>
+                                        <td>OPERATION NEPTUNE</td>
+                                        <td><span class="badge bg-info">Surveillance</span></td>
+                                        <td>2025-08-11 06:00</td>
+                                        <td>4h 30m</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info" onclick="viewMissionDetails('M-2025-001')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#M-2025-002</td>
+                                        <td>PATROL BRAVO</td>
+                                        <td><span class="badge bg-warning">Patrol</span></td>
+                                        <td>2025-08-11 10:30</td>
+                                        <td>6h 00m</td>
+                                        <td><span class="badge bg-primary">In Progress</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info" onclick="viewMissionDetails('M-2025-002')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>#M-2025-003</td>
+                                        <td>SAR CHARLIE</td>
+                                        <td><span class="badge bg-danger">Search & Rescue</span></td>
+                                        <td>2025-08-11 14:00</td>
+                                        <td>2h 15m</td>
+                                        <td><span class="badge bg-warning">Pending</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info" onclick="viewMissionDetails('M-2025-003')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- Extended history (hidden by default) -->
+                        <div id="extended-history" style="display: none;">
+                            <table class="table table-sm table-tactical mt-2">
+                                <tbody>
+                                    <tr>
+                                        <td>#M-2025-004</td>
+                                        <td>ESCORT DELTA</td>
+                                        <td><span class="badge bg-secondary">Escort</span></td>
+                                        <td>2025-08-10 18:00</td>
+                                        <td>8h 45m</td>
+                                        <td><span class="badge bg-success">Completed</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-4 py-3">
+        <div class="container-fluid">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <i class="fas fa-satellite"></i> Mission Control
+                </div>
+                <div class="col-md-4">
+                    <a href="sitemap.html" class="text-decoration-none text-tactical">
+                        <i class="fas fa-sitemap"></i> Sitemap
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Form Validation Active</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms).forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+
+        // Character counter for notes
+        document.getElementById('missionNotes').addEventListener('input', function() {
+            document.getElementById('charCount').textContent = this.value.length;
+        });
+
+        // Submit mission
+        function submitMission(event) {
+            event.preventDefault();
+            if (event.target.checkValidity()) {
+                alert('Mission plan submitted successfully! Mission ID: #M-2025-' + 
+                      Math.floor(Math.random() * 1000).toString().padStart(3, '0'));
+                event.target.reset();
+                event.target.classList.remove('was-validated');
+            }
+        }
+
+        // Toggle mission history
+        function toggleMissionHistory() {
+            const extended = document.getElementById('extended-history');
+            const toggleText = document.getElementById('history-toggle-text');
+            
+            if (extended.style.display === 'none') {
+                extended.style.display = 'block';
+                toggleText.textContent = 'Show Less';
+            } else {
+                extended.style.display = 'none';
+                toggleText.textContent = 'Show All';
+            }
+        }
+
+        // View mission details
+        function viewMissionDetails(missionId) {
+            alert('Opening mission details for: ' + missionId);
+        }
+
+        // Mission clock
+        let missionSeconds = 0;
+        setInterval(() => {
+            missionSeconds++;
+            const hours = Math.floor(missionSeconds / 3600);
+            const minutes = Math.floor((missionSeconds % 3600) / 60);
+            const seconds = missionSeconds % 60;
+            document.getElementById('mission-clock').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }, 1000);
+    </script>
+</body>
+</html>

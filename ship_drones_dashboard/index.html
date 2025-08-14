@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<!--
+	Student Name: Geoff King
+	File Name: index.html
+	Date: August 11, 2025
+	CIS 339 Final Project - Naval Operations Dashboard
+	Almost ready for real drone integration
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Real-time naval vessel monitoring system with drone deployment capabilities. Track ship systems, mission status, and fleet operations.">
+    <meta name="keywords" content="naval operations, ship monitoring, drone deployment, maritime surveillance, fleet management">
+    <meta name="author" content="Geoff King">
+    <title>USS Bootstrap DDG-101 | Naval Operations Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- MAVLink/Drone Integration Prep -->
+    <script>
+        // Global telemetry configuration for future drone integration
+        window.TELEMETRY_CONFIG = {
+            mavlink_port: 14550,  // Standard MAVLink port
+            update_rate: 10,       // Hz
+            protocol: 'MAVLink',   // Ready for real drones
+            websocket_url: null    // Will be set when drone connected
+        };
+    </script>
+</head>
+
+<body>
+    <!-- Header Banner -->
+    <header class="bg-dark text-white py-2 border-bottom border-warning">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <i class="fas fa-anchor fa-2x text-tactical"></i>
+                </div>
+                <div class="col">
+                    <h1 class="h4 mb-0 text-uppercase">Naval Operations Command</h1>
+                    <small class="text-muted">UNCLASSIFIED // FOR TRAINING USE ONLY</small>
+                </div>
+                <div class="col-auto">
+                    <!-- Drone Connection Status Indicator -->
+                    <span id="drone-link-status" class="badge bg-secondary me-2" title="Drone Link Status">
+                        <i class="fas fa-satellite-dish"></i> NO LINK
+                    </span>
+                    <span id="system-time" class="badge bg-success">--:--:--</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-ship"></i> USS BOOTSTRAP <span class="badge bg-info">DDG-101</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">
+                            <i class="fas fa-home"></i> Bridge
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="drones.html">
+                            <i class="fas fa-helicopter"></i> Drone Ops
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="mission_control.html">
+                            <i class="fas fa-map-marked-alt"></i> Missions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="reports.html">
+                            <i class="fas fa-chart-line"></i> Reports
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-cog"></i> Systems
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="#" onclick="showSystemDetails('bridge')">
+                                <i class="fas fa-compass"></i> Bridge Status</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showSystemDetails('engine1')">
+                                <i class="fas fa-tachometer-alt"></i> Port Engine</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showSystemDetails('engine2')">
+                                <i class="fas fa-tachometer-alt"></i> Starboard Engine</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="showSystemDetails('weapons')">
+                                <i class="fas fa-crosshairs"></i> Weapons Systems</a></li>
+                        </ul>
+                    </li>
+                </ul>
+                
+                <!-- Search Form with Font Awesome -->
+                <form class="d-flex" role="search" onsubmit="searchDashboard(event)">
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-secondary">
+                            <i class="fas fa-search text-tactical"></i>
+                        </span>
+                        <input class="form-control" type="search" placeholder="Search systems..." aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb" class="container-fluid mt-2">
+        <ol class="breadcrumb px-3 py-2" style="background: rgba(74, 85, 104, 0.5); border: 1px solid #0ea5e9; border-radius: 4px;">
+            <li class="breadcrumb-item active" aria-current="page" style="color: #10b981;">
+                <i class="fas fa-home" style="color: #0ea5e9;"></i> 
+                <span style="color: #10b981; font-weight: bold;">Bridge Overview</span>
+            </li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        <!-- Alert Banner -->
+        <div id="alert-banner" class="alert alert-dismissible fade show d-none" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="alert-message"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Ship Views Carousel  -->
+        <div class="row mt-1">
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-video"></i> Ship Surveillance Systems
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="shipCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#shipCarousel" data-bs-slide-to="0" class="active"></button>
+                                <button type="button" data-bs-target="#shipCarousel" data-bs-slide-to="1"></button>
+                                <button type="button" data-bs-target="#shipCarousel" data-bs-slide-to="2"></button>
+                            </div>
+                            <div class="carousel-inner">
+                                <!-- Side View ( Interactive) -->
+                                <div class="carousel-item active">
+                                    <div class="d-block w-100" style="height: 450px; background: linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%);">
+                                        <svg width="100%" height="450" id="ship-svg-carousel">
+                                            <!-- Complete Side View Ship with all systems -->
+                                            <g id="side-view-ship">
+                                                <!-- Complete hull profile -->
+                                                <path d="M150 220 L150 240 L160 280 L170 300 L450 300 L480 290 L500 270 L505 240 L500 220 Z" 
+                                                      fill="#7C8B8C" stroke="#4A5568" stroke-width="2"/>
+                                                
+                                                <!-- Waterline -->
+                                                <line x1="130" y1="300" x2="520" y2="300" stroke="#1e40af" stroke-width="3" opacity="0.7"/>
+                                                
+                                                <!-- Superstructure (mid-ship) -->
+                                                <rect x="250" y="160" width="120" height="60" fill="#4A5568" stroke="#1a202c" stroke-width="2"/>
+                                                
+                                                <!-- Bridge (clickable) -->
+                                                <g>
+                                                    <rect x="280" y="120" width="80" height="40" fill="#7C8B8C" stroke="#4A5568" stroke-width="2" 
+                                                          class="clickable system-online" data-system="bridge"/>
+                                                    <text x="320" y="142" class="system-label hover-label">BRIDGE</text>
+                                                </g>
+                                                
+                                                <!-- Weapons (clickable) -->
+                                                <g>
+                                                    <rect x="380" y="200" width="50" height="20" fill="#38a169" stroke="#2f855a" stroke-width="2" 
+                                                          class="clickable system-standby" data-system="weapons"/>
+                                                    <text x="405" y="213" class="system-label hover-label">WEAPONS</text>
+                                                </g>
+                                                
+                                                <!-- Communications with Enhanced Radar (clickable) -->
+                                                <g>
+                                                    <!-- Comm tower -->
+                                                    <rect x="315" y="60" width="10" height="60" fill="#3182ce" stroke="#2c5282" stroke-width="2" 
+                                                          class="clickable system-online" data-system="comms"/>
+                                                    <text x="320" y="55" class="system-label hover-label">COMMS</text>
+                                                    
+                                                    <!-- Enhanced Radar Sweep centered on comms -->
+                                                    <defs>
+                                                        <!-- Gradient for radar sweep -->
+                                                        <radialGradient id="radarGradient">
+                                                            <stop offset="0%" style="stop-color:#00ff00;stop-opacity:0.8" />
+                                                            <stop offset="100%" style="stop-color:#00ff00;stop-opacity:0" />
+                                                        </radialGradient>
+                                                        
+                                                        <!-- Clip path for sweep -->
+                                                        <clipPath id="sweepClip">
+                                                            <path d="M 320 60 L 370 30 L 370 90 Z" />
+                                                        </clipPath>
+                                                    </defs>
+                                                    
+                                                    <!-- Radar rings centered on comms -->
+                                                    <circle cx="320" cy="60" r="15" fill="none" stroke="#0ea5e9" stroke-width="0.5" opacity="0.3"/>
+                                                    <circle cx="320" cy="60" r="25" fill="none" stroke="#0ea5e9" stroke-width="0.5" opacity="0.2"/>
+                                                    <circle cx="320" cy="60" r="35" fill="none" stroke="#0ea5e9" stroke-width="0.5" opacity="0.1"/>
+                                                    
+                                                    <!-- Radar sweep beam  -->
+                                                    <g class="radar-sweep-wiper">
+                                                        <path d="M 320 60 L 360 30 L 365 35 L 325 65 Z" 
+                                                              fill="url(#radarGradient)" opacity="0.6"/>
+                                                        <line x1="320" y1="60" x2="360" y2="30" 
+                                                              stroke="#00ff00" stroke-width="1.5" opacity="0.9"/>
+                                                    </g>
+                                                </g>
+                                                
+                                                <!-- Engine room -->
+                                                <rect x="160" y="240" width="70" height="60" fill="#4A5568" stroke="#1a202c" stroke-width="2"/>
+                                                <text x="195" y="235" class="system-label" style="opacity: 0.7;">ENGINE ROOM</text>
+                                                
+                                                <!-- Port engine ( clickable ) -->
+                                                <g>
+                                                    <rect x="170" y="250" width="25" height="40" fill="#e53e3e" stroke="#c53030" stroke-width="2" 
+                                                          class="clickable system-online" data-system="engine1"/>
+                                                    <text x="182" y="273" class="system-label hover-label">PORT</text>
+                                                </g>
+                                                
+                                                <!-- Starboard engine ( clickable ) -->
+                                                <g>
+                                                    <rect x="200" y="255" width="25" height="35" fill="#dc2626" stroke="#b91c1c" stroke-width="2" 
+                                                          class="clickable system-online" data-system="engine2"/>
+                                                    <text x="212" y="273" class="system-label hover-label">STBD</text>
+                                                </g>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                    <div class="carousel-caption">
+                                        <h5>Port Side View</h5>
+                                        <p>Click on systems for details</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Top View with Enhanced Radar -->
+                                <div class="carousel-item">
+                                    <div class="d-block w-100" style="height: 450px; background: linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%);">
+                                        <svg width="100%" height="450">
+                                            <defs>
+                                                <!-- Enhanced gradient for top view radar -->
+                                                <radialGradient id="topRadarGradient">
+                                                    <stop offset="0%" style="stop-color:#00ff00;stop-opacity:0.9" />
+                                                    <stop offset="50%" style="stop-color:#00ff00;stop-opacity:0.3" />
+                                                    <stop offset="100%" style="stop-color:#00ff00;stop-opacity:0" />
+                                                </radialGradient>
+                                            </defs>
+                                            
+                                            <g id="top-view-ship">
+                                                <!-- Main hull outline (top-down) -->
+                                                <ellipse cx="400" cy="225" rx="180" ry="40" fill="#7C8B8C" stroke="#4A5568" stroke-width="2"/>
+                                                
+                                                <!-- Superstructure -->
+                                                <rect x="350" y="200" width="100" height="50" fill="#4A5568" stroke="#1a202c" stroke-width="1"/>
+                                                
+                                                <!-- Bridge (clickable) -->
+                                                <g>
+                                                    <rect x="370" y="205" width="60" height="40" fill="#7C8B8C" stroke="#4A5568" stroke-width="2" 
+                                                          class="clickable system-online" data-system="bridge"/>
+                                                    <text x="400" y="228" class="system-label hover-label">BRIDGE</text>
+                                                </g>
+                                                
+                                                <!-- Port Engine (clickable) -->
+                                                <g>
+                                                    <rect x="250" y="210" width="25" height="15" fill="#e53e3e" stroke="#c53030" stroke-width="2" 
+                                                          class="clickable system-online" data-system="engine1"/>
+                                                    <text x="262" y="220" class="system-label hover-label">PORT</text>
+                                                </g>
+                                                
+                                                <!-- Starboard Engine (clickable) -->
+                                                <g>
+                                                    <rect x="250" y="230" width="25" height="15" fill="#dc2626" stroke="#b91c1c" stroke-width="2" 
+                                                          class="clickable system-online" data-system="engine2"/>
+                                                    <text x="262" y="240" class="system-label hover-label">STBD</text>
+                                                </g>
+                                                
+                                                <!-- Communications (clickable) with centered radar -->
+                                                <g>
+                                                    <circle cx="400" cy="180" r="12" fill="#3182ce" stroke="#2c5282" stroke-width="2" 
+                                                            class="clickable system-online" data-system="comms"/>
+                                                    <text x="400" y="170" class="system-label hover-label">COMMS</text>
+                                                    
+                                                    <!-- Radar rings centered on comms -->
+                                                    <circle cx="400" cy="180" r="25" fill="none" stroke="#0ea5e9" stroke-width="0.5" opacity="1"/>
+                                                    <circle cx="400" cy="180" r="50" fill="none" stroke="#0ea5e9" stroke-width="0.5" opacity="0.8"/>
+                                                    <circle cx="400" cy="180" r="75" fill="none" stroke="#0ea5e9" stroke-width="0.5" opacity="0.6"/>
+													<circle cx="400" cy="180" r="100" fill="none" stroke="#0ea5e9" stroke-width="0.5" opacity="0.4"/>
+													<circle cx="400" cy="180" r="125" fill="none" stroke="#0ea5e9" stroke-width="0.5" opacity="0.2"/>
+													<circle cx="400" cy="180" r="150" fill="none" stroke="#0ea5e9" stroke-width="0.5" opacity="0.2"/>
+                                                    
+                                                    <!-- Better wiper-style sweep -->
+													<g class="radar-sweep-top">
+														<path d="M 400 180 L 600 60 L 515 95 L 405 185 Z" 
+															fill="url(#topRadarGradient)" opacity="0.5"/>
+														<line x1="400" y1="180" x2="600" y2="60" 
+															stroke="#00ff00" stroke-width="2" opacity="0.9"/>
+													</g>
+                                                </g>
+                                                
+                                                <!-- Weapons (clickable) -->
+                                                <g>
+                                                    <rect x="500" y="215" width="50" height="20" fill="#38a169" stroke="#2f855a" stroke-width="2" 
+                                                          class="clickable system-standby" data-system="weapons"/>
+                                                    <text x="525" y="228" class="system-label hover-label">WEAPONS</text>
+                                                </g>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                    <div class="carousel-caption">
+                                        <h5>Aerial View</h5>
+                                        <p>Click on systems for details</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- 3D Perspective / Drone Integration View -->
+                                <div class="carousel-item">
+                                    <div class="d-block w-100 text-center" style="height: 450px; background: linear-gradient(135deg, #1a202c 0%, #2d3748 100%); display: flex; align-items: center; justify-content: center;">
+                                        <div>
+                                            <i class="fas fa-cube fa-5x text-tactical mb-3"></i>
+                                            <h3 class="text-white">Drone Integration Ready</h3>
+                                            <p class="text-muted">MAVLink Protocol Support</p>
+                                            <button class="btn btn-tactical-primary" onclick="initDroneConnection()">
+                                                <i class="fas fa-satellite-dish"></i> Connect Drone
+                                            </button>
+                                            <div class="mt-3">
+                                                <small class="text-info">
+                                                    Compatible with: ArduPilot, PX4, DJI SDK
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="carousel-caption">
+                                        <h5>Drone Integration</h5>
+                                        <p>Connect real UAVs via MAVLink</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#shipCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#shipCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Status Panel -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-tachometer-alt"></i> System Status
+                        <span id="telemetry-rate" class="badge bg-info float-end" style="display: none;">
+                            <i class="fas fa-wave-square"></i> 0 Hz
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <!-- Status Cards -->
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="card bg-dark text-white">
+                                    <div class="card-body p-2 text-center">
+                                        <i class="fas fa-temperature-high text-warning"></i>
+                                        <h6 class="mb-0">Engine Temp</h6>
+                                        <h5 id="avg-engine-temp">---°F</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-dark text-white">
+                                    <div class="card-body p-2 text-center">
+                                        <i class="fas fa-bolt text-success"></i>
+                                        <h6 class="mb-0">Power</h6>
+                                        <h5 id="avg-power">---%</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-dark text-white">
+                                    <div class="card-body p-2 text-center">
+                                        <i class="fas fa-signal text-info"></i>
+                                        <h6 class="mb-0">Comms</h6>
+                                        <h5 id="comms-signal">---%</h5>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-dark text-white">
+                                    <div class="card-body p-2 text-center">
+                                        <i class="fas fa-check-circle text-primary"></i>
+                                        <h6 class="mb-0">Systems</h6>
+                                        <h5 id="systems-count">-/-</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Show More Details Button -->
+                        <div class="mt-3 text-center">
+                            <button type="button" class="btn btn-outline-info btn-sm show-more-btn" id="details-toggle-btn">
+                                <span id="details-btn-text">Show More Details</span>
+                                <i class="fas fa-chevron-down ms-1" id="details-chevron"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Hidden detailed info -->
+                        <div id="more-details" style="display: none;" class="mt-3">
+                            <hr class="border-tactical">
+                            <small class="text-muted">Additional Metrics:</small>
+                            <ul class="list-unstyled small">
+                                <li><i class="fas fa-gas-pump text-warning"></i> Fuel: <span id="fuel-level" class="text-success">85%</span></li>
+                                <li><i class="fas fa-tachometer-alt text-info"></i> Speed: <span id="ship-speed" class="text-info">15 kts</span></li>
+                                <li><i class="fas fa-clock text-primary"></i> Uptime: <span id="system-uptime" class="text-success">247:32</span></li>
+                                <li><i class="fas fa-database text-secondary"></i> Data Points: <span id="data-points" class="text-muted">1,847</span></li>
+                            </ul>
+                            <hr class="border-secondary">
+                            <small class="text-muted">System Health:</small>
+                            <div class="progress mb-2" style="height: 20px;">
+                                <div class="progress-bar bg-success" style="width: 85%">Overall: 85%</div>
+                            </div>
+                            <small class="text-muted">Quick Actions:</small>
+                            <div class="d-grid gap-1 mt-2">
+                                <button class="btn btn-sm btn-outline-warning" onclick="runDiagnostics()">
+                                    <i class="fas fa-stethoscope"></i> Run Diagnostics
+                                </button>
+                                <button class="btn btn-sm btn-outline-info" onclick="viewLogs()">
+                                    <i class="fas fa-file-alt"></i> View System Logs
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <script>
+                            // Immediate script for toggle button
+                            document.getElementById('details-toggle-btn').addEventListener('click', function() {
+                                var details = document.getElementById('more-details');
+                                var btnText = document.getElementById('details-btn-text');
+                                var chevron = document.getElementById('details-chevron');
+                                
+                                if (details.style.display === 'none' || details.style.display === '') {
+                                    details.style.display = 'block';
+                                    btnText.textContent = 'Show Less Details';
+                                    chevron.className = 'fas fa-chevron-up ms-1';
+                                } else {
+                                    details.style.display = 'none';
+                                    btnText.textContent = 'Show More Details';
+                                    chevron.className = 'fas fa-chevron-down ms-1';
+                                }
+                            });
+                        </script>
+                    </div>
+                </div>
+                
+                <!-- Drone Status Widget with Real Telemetry Prep -->
+                <div class="card mt-3 drone-card">
+                    <div class="card-header">
+                        <i class="fas fa-helicopter"></i> Drone Fleet
+                        <a href="drones.html" class="btn btn-sm btn-outline-info float-end">
+                            View All <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success">3 Ready</span>
+                            <span class="badge bg-warning">1 Deploying</span>
+                            <span class="badge bg-danger">1 RTB</span>
+                        </div>
+                        <div class="progress mt-2" style="height: 10px;">
+                            <div class="progress-bar bg-success" style="width: 60%"></div>
+                            <div class="progress-bar bg-warning" style="width: 20%"></div>
+                            <div class="progress-bar bg-danger" style="width: 20%"></div>
+                        </div>
+                        
+                        <!-- Real Drone Connection Readiness -->
+                        <div class="mt-2 text-center">
+                            <small class="text-muted">Protocol: MAVLink 2.0</small><br>
+                            <small class="text-info">Ready for ArduPilot/PX4</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mission and Environment Row -->
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-crosshairs"></i> Current Mission
+                    </div>
+                    <div class="card-body">
+                        <h5 id="mission-name" class="text-white">Loading...</h5>
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">Type:</small><br>
+                                <span id="mission-type" class="badge bg-info">--</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">Priority:</small><br>
+                                <span id="mission-priority" class="badge bg-warning">--</span>
+                            </div>
+                        </div>
+                        <div class="progress mt-3" style="height: 25px;">
+                            <div id="mission-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%">0%</div>
+                        </div>
+                        <small class="text-muted">ETA: <span id="mission-eta" class="text-white">--:--</span></small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-cloud-sun"></i> Environmental Conditions
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="mb-2">
+                                    <i class="fas fa-water fa-2x text-info"></i>
+                                </div>
+                                <small class="text-muted d-block">Sea State</small>
+                                <strong id="sea-state" class="d-block text-white">Moderate</strong>
+                                <small class="text-secondary">Wave Height</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="mb-2">
+                                    <i class="fas fa-wind fa-2x text-primary"></i>
+                                </div>
+                                <small class="text-muted d-block">Wind Speed</small>
+                                <strong id="wind-speed" class="d-block text-white">12 kts</strong>
+                                <small class="text-secondary">From NW</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="mb-2">
+                                    <i class="fas fa-eye fa-2x text-success"></i>
+                                </div>
+                                <small class="text-muted d-block">Visibility</small>
+                                <strong id="visibility" class="d-block text-white">10 nm</strong>
+                                <small class="text-secondary">Clear</small>
+                            </div>
+                        </div>
+                        <hr class="my-2 border-secondary">
+                        <div class="row text-center small">
+                            <div class="col-4">
+                                <i class="fas fa-thermometer-half text-warning"></i>
+                                <span class="d-block text-white">Air: <strong id="air-temp" class="text-warning">72°F</strong></span>
+                            </div>
+                            <div class="col-4">
+                                <i class="fas fa-compress-arrows-alt text-info"></i>
+                                <span class="d-block text-white">Pressure: <strong id="pressure" class="text-info">30.1 in</strong></span>
+                            </div>
+                            <div class="col-4">
+                                <i class="fas fa-compass text-danger"></i>
+                                <span class="d-block text-white">Heading: <strong id="heading" class="text-success">045°</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			
+
+			<!-- Radar Display -->
+			<div class="row mt-3">
+				<div class="col-12">
+					<div class="card">
+						<div class="card-header">
+							<i class="fas fa-radar"></i> Radar Scope - 30nm Range
+							<div class="float-end">
+								<span id="radar-contacts-count" class="badge bg-info">0 Contacts</span>
+								<span id="radar-sweep-status" class="badge bg-success">ACTIVE</span>
+							</div>
+						</div>
+						<div class="card-body" style="background: #1a202c;">
+							<div class="row">
+								<div class="col-lg-8">
+									<!-- Radar Display -->
+									<div class="text-center">
+										<div style="position: relative; width: 400px; height: 400px; margin: 0 auto;">
+											<canvas id="radarCanvas" width="400" height="400" 
+													style="border: 2px solid #0ea5e9; border-radius: 50%; background: radial-gradient(circle, rgba(0,100,0,0.1) 0%, rgba(0,50,0,0.05) 50%, transparent 100%);"></canvas>
+											<!-- Ship icon at center -->
+											<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #10b981; font-size: 12px; font-weight: bold;">
+												<i class="fas fa-ship"></i><br>USS BOOTSTRAP
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="col-lg-4">
+									<!-- Contact List -->
+									<div class="card bg-dark">
+										<div class="card-header">
+											<i class="fas fa-list"></i> Radar Contacts
+										</div>
+										<div class="card-body" style="max-height: 300px; overflow-y: auto;">
+											<div id="radar-contacts-list">
+												<div class="text-center text-muted">
+													<i class="fas fa-search"></i><br>
+													Scanning for contacts...
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-4 py-3">
+        <div class="container-fluid">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <i class="fas fa-anchor"></i> USS Bootstrap DDG-101
+                </div>
+                <div class="col-md-4">
+                    <a href="sitemap.html" class="text-decoration-none text-tactical">
+                        <i class="fas fa-sitemap"></i> Sitemap
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">© 2025 Naval Training Systems</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- System Details Modal  -->
+    <div class="modal fade" id="systemModal" tabindex="-1" aria-labelledby="systemModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="systemModalLabel">System Details</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Status Overview</h6>
+                            <p><strong>System:</strong> <span id="modal-system-name">---</span></p>
+                            <p><strong>Status:</strong> <span id="modal-status" class="badge">---</span></p>
+                            <p><strong>Last Update:</strong> <span id="modal-timestamp">---</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Real-Time Readings</h6>
+                            <div id="modal-readings">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress bars for numeric values -->
+                    <div class="mt-3" id="modal-progress-bars">
+                        <!-- Dynamic progress bars will go here -->
+						
+						
+						
+                    </div>
+                    
+                    <!-- Additional system info -->
+                    <div class="mt-3" id="modal-additional-info">
+                        <!-- system details will go here -->
+						
+						
+						
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="refresh-system" onclick="refreshSystemData()">
+                        <i class="fas fa-sync"></i> Refresh Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // ship systems data
+        let shipSystems = {
+            bridge: { name: "Bridge", status: "online", temp: 72, crew_count: 6 },
+            engine1: { name: "Port Engine", status: "online", temp: 195, power: 85, rpm: 3000 },
+            engine2: { name: "Starboard Engine", status: "online", temp: 198, power: 87, rpm: 3100 },
+            comms: { name: "Communications", status: "online", signal: 92, channels_active: 18, encryption: "AES-256" },
+            weapons: { name: "Forward Weapons", status: "standby", ready: true, missile_count: 92 }
+        };
+
+        // Drone telemetry handler ( preparation for real drones )
+        function initDroneConnection() {
+            alert('Drone Connection Interface\n\n' + 
+                  'Ready to connect via:\n' +
+                  '• USB Serial (COM port)\n' +
+                  '• TCP/IP (Port 14550)\n' +
+                  '• WebSocket Bridge\n\n' +
+                  'Supported protocols: MAVLink 1.0/2.0');
+            
+        }
+
+        // Process real drone telemetry ( MAVLink compatible )
+        function processDroneTelemetry(mavlinkMessage) {
+   
+            
+            console.log('Processing MAVLink message:', mavlinkMessage);
+        }
+
+        // Update system time
+        setInterval(() => {
+            document.getElementById('system-time').textContent = 
+                new Date().toLocaleTimeString('en-US', { hour12: false });
+        }, 1000);
+        
+        // Search functionality
+        function searchDashboard(event) {
+            event.preventDefault();
+            const query = event.target.querySelector('input').value;
+            console.log('Searching for:', query);
+            alert('Searching for: ' + query);
+        }
+        
+        // Show system details modal
+        function showSystemDetails(systemId) {
+            const system = shipSystems[systemId];
+            if (!system) return;
+            
+            // Update modal content
+            document.getElementById('systemModalLabel').textContent = `${system.name} - System Details`;
+            document.getElementById('modal-system-name').textContent = system.name;
+            
+            const statusBadge = document.getElementById('modal-status');
+            statusBadge.textContent = system.status.toUpperCase();
+            statusBadge.className = `badge bg-${getStatusColor(system.status)}`;
+            
+            document.getElementById('modal-timestamp').textContent = new Date().toLocaleTimeString();
+            
+            // Build dynamic content
+            let readingsHTML = '';
+            let progressBarsHTML = '';
+            
+            if (system.temp !== undefined) {
+                readingsHTML += `<p><strong>Temperature:</strong> ${system.temp}°F</p>`;
+                const tempPercent = Math.min(100, Math.max(0, (system.temp - 60) / 160 * 100));
+                const tempColor = system.temp > 210 ? 'danger' : (system.temp > 200 ? 'warning' : 'info');
+                progressBarsHTML += `
+                    <div class="mb-2">
+                        <label class="form-label">Temperature</label>
+                        <div class="progress">
+                            <div class="progress-bar bg-${tempColor}" style="width: ${tempPercent}%">${system.temp}°F</div>
+                        </div>
+                    </div>`;
+            }
+            
+            if (system.power !== undefined) {
+                readingsHTML += `<p><strong>Power Output:</strong> ${system.power}%</p>`;
+                progressBarsHTML += `
+                    <div class="mb-2">
+                        <label class="form-label">Power Output</label>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: ${system.power}%">${system.power}%</div>
+                        </div>
+                    </div>`;
+            }
+            
+            if (system.signal !== undefined) {
+                readingsHTML += `<p><strong>Signal Strength:</strong> ${system.signal}%</p>`;
+            }
+            
+            document.getElementById('modal-readings').innerHTML = readingsHTML;
+            document.getElementById('modal-progress-bars').innerHTML = progressBarsHTML;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('systemModal'));
+            modal.show();
+        }
+        
+        // Get status color for badges
+        function getStatusColor(status) {
+            switch(status) {
+                case 'online': return 'success';
+                case 'warning': return 'warning';
+                case 'critical': return 'danger';
+                case 'offline': return 'secondary';
+                case 'standby': return 'info';
+                default: return 'secondary';
+            }
+        }
+        
+        // Additional functions
+        function runDiagnostics() {
+            alert('Running system diagnostics... This may take a few moments.');
+        }
+        
+        function viewLogs() {
+            alert('Opening system logs...');
+        }
+        
+        function refreshSystemData() {
+            alert('Refreshing system data...');
+        }
+        
+        // Initialize click handlers when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers to all clickable ship systems
+            document.querySelectorAll('.clickable').forEach(element => {
+                element.addEventListener('click', function() {
+                    const systemId = this.getAttribute('data-system');
+                    showSystemDetails(systemId);
+                });
+            });
+            
+            // Initialize tooltips if needed
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+</body>
+</html>

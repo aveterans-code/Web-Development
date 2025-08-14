@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<!--
+	Student Name: Geoff King
+	File Name: reports.html
+	Date: August 11, 2025
+	CIS 339 Final Project - Reports & Analytics Center
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Naval operations reports, analytics, and performance metrics dashboard">
+    <meta name="keywords" content="naval reports, performance analytics, operational metrics, fleet statistics">
+    <title>Reports & Analytics | USS Bootstrap Naval Dashboard</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Header banner  -->
+    <header class="bg-dark text-white py-2 border-bottom border-warning">
+        <div class="container-fluid">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <i class="fas fa-chart-line fa-2x text-tactical"></i>
+                </div>
+                <div class="col">
+                    <h1 class="h4 mb-0 text-uppercase">Operational Reports Center</h1>
+                    <small class="text-muted">ANALYTICS & PERFORMANCE METRICS</small>
+                </div>
+                <div class="col-auto">
+                    <button class="btn btn-sm btn-success" onclick="generateReport()">
+                        <i class="fas fa-file-pdf"></i> Generate Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                <i class="fas fa-ship"></i> USS BOOTSTRAP
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">
+                            <i class="fas fa-home"></i> Bridge
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="drones.html">
+                            <i class="fas fa-helicopter"></i> Drone Ops
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="mission_control.html">
+                            <i class="fas fa-map-marked-alt"></i> Missions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="reports.html">
+                            <i class="fas fa-chart-line"></i> Reports
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!--Breadcrumb -->
+    <nav aria-label="breadcrumb" class="container-fluid mt-2">
+        <ol class="breadcrumb bg-dark px-3 py-2">
+            <li class="breadcrumb-item"><a href="index.html" class="text-decoration-none">
+                <i class="fas fa-home"></i> Bridge</a></li>
+            <li class="breadcrumb-item active" aria-current="page">
+                <i class="fas fa-chart-line"></i> Reports</li>
+        </ol>
+    </nav>
+
+    <div class="container-fluid">
+        <!-- Key Performance Indicators -->
+        <div class="row mt-3">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
+                        <h3 class="text-success">98.5%</h3>
+                        <p class="text-muted mb-0">Mission Success Rate</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-clock fa-3x text-info mb-2"></i>
+                        <h3 class="text-info">2,457</h3>
+                        <p class="text-muted mb-0">Operational Hours</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-route fa-3x text-warning mb-2"></i>
+                        <h3 class="text-warning">12,853</h3>
+                        <p class="text-muted mb-0">Nautical Miles</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body">
+                        <i class="fas fa-helicopter fa-3x text-danger mb-2"></i>
+                        <h3 class="text-danger">847</h3>
+                        <p class="text-muted mb-0">Drone Flights</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Filters and Export -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-filter"></i> Report Filters
+                    </div>
+                    <div class="card-body">
+                        <form id="reportFilterForm" class="row g-3">
+                            <div class="col-md-3">
+                                <label for="reportType" class="form-label">Report Type</label>
+                                <select class="form-select" id="reportType">
+                                    <option value="all">All Reports</option>
+                                    <option value="systems">Systems Performance</option>
+                                    <option value="missions">Mission Summary</option>
+                                    <option value="maintenance">Maintenance Log</option>
+                                    <option value="fuel">Fuel Consumption</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateFrom" class="form-label">Date From</label>
+                                <input type="date" class="form-control" id="dateFrom">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateTo" class="form-label">Date To</label>
+                                <input type="date" class="form-control" id="dateTo">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">&nbsp;</label>
+                                <div class="d-grid">
+                                    <button type="button" class="btn btn-tactical-primary" onclick="applyFilters()">
+                                        <i class="fas fa-search"></i> Apply Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabbed Report Sections -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="tab" href="#systems-tab">
+                                    <i class="fas fa-cogs"></i> Systems
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#missions-tab">
+                                    <i class="fas fa-bullseye"></i> Missions
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#maintenance-tab">
+                                    <i class="fas fa-wrench"></i> Maintenance
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#alerts-tab">
+                                    <i class="fas fa-exclamation-triangle"></i> Alerts
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <!--  Systems Performance tab -->
+                            <div class="tab-pane fade show active" id="systems-tab">
+                                <h5 class="card-title">Systems Performance Report</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-tactical">
+                                        <thead>
+                                            <tr>
+                                                <th onclick="sortTable(0)">System <i class="fas fa-sort"></i></th>
+                                                <th onclick="sortTable(1)">Status <i class="fas fa-sort"></i></th>
+                                                <th onclick="sortTable(2)">Uptime % <i class="fas fa-sort"></i></th>
+                                                <th onclick="sortTable(3)">Alerts <i class="fas fa-sort"></i></th>
+                                                <th onclick="sortTable(4)">Last Check <i class="fas fa-sort"></i></th>
+                                                <th>Performance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><i class="fas fa-compass"></i> Bridge Systems</td>
+                                                <td><span class="badge bg-success">Operational</span></td>
+                                                <td>99.8%</td>
+                                                <td>2</td>
+                                                <td>5 min ago</td>
+                                                <td>
+                                                    <div class="progress" style="height: 15px;">
+                                                        <div class="progress-bar bg-success" style="width: 95%">95%</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="fas fa-tachometer-alt"></i> Port Engine</td>
+                                                <td><span class="badge bg-success">Operational</span></td>
+                                                <td>98.2%</td>
+                                                <td>5</td>
+                                                <td>5 min ago</td>
+                                                <td>
+                                                    <div class="progress" style="height: 15px;">
+                                                        <div class="progress-bar bg-success" style="width: 87%">87%</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="fas fa-tachometer-alt"></i> Starboard Engine</td>
+                                                <td><span class="badge bg-warning">Warning</span></td>
+                                                <td>95.4%</td>
+                                                <td>12</td>
+                                                <td>3 min ago</td>
+                                                <td>
+                                                    <div class="progress" style="height: 15px;">
+                                                        <div class="progress-bar bg-warning" style="width: 72%">72%</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="fas fa-signal"></i> Communications</td>
+                                                <td><span class="badge bg-success">Operational</span></td>
+                                                <td>99.9%</td>
+                                                <td>0</td>
+                                                <td>1 min ago</td>
+                                                <td>
+                                                    <div class="progress" style="height: 15px;">
+                                                        <div class="progress-bar bg-success" style="width: 98%">98%</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="fas fa-crosshairs"></i> Weapons Systems</td>
+                                                <td><span class="badge bg-info">Standby</span></td>
+                                                <td>100%</td>
+                                                <td>0</td>
+                                                <td>10 min ago</td>
+                                                <td>
+                                                    <div class="progress" style="height: 15px;">
+                                                        <div class="progress-bar bg-info" style="width: 100%">Ready</div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- Show more button -->
+                                <div class="text-center mt-3">
+                                    <button class="btn btn-outline-info show-more-btn" onclick="toggleMoreSystems()">
+                                        <span id="systems-more-text">Show Historical Data</span>
+                                        <i class="fas fa-chevron-down ms-1"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Historical Data ( normally hidden ) -->
+                                <div id="historical-data" style="display: none;" class="mt-3">
+                                    <h6>Historical Performance (Last 30 Days)</h6>
+                                    <canvas id="performanceChart" width="400" height="100"></canvas>
+                                </div>
+                            </div>
+
+                            <!-- Missions Tab -->
+                            <div class="tab-pane fade" id="missions-tab">
+                                <h5 class="card-title">Mission Summary Report</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-tactical">
+                                        <thead>
+                                            <tr>
+                                                <th>Mission Type</th>
+                                                <th>Total</th>
+                                                <th>Completed</th>
+                                                <th>Success Rate</th>
+                                                <th>Avg Duration</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Patrol</td>
+                                                <td>45</td>
+                                                <td>44</td>
+                                                <td><span class="text-success">97.8%</span></td>
+                                                <td>6.5 hours</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Surveillance</td>
+                                                <td>32</td>
+                                                <td>32</td>
+                                                <td><span class="text-success">100%</span></td>
+                                                <td>4.2 hours</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Search & Rescue</td>
+                                                <td>8</td>
+                                                <td>7</td>
+                                                <td><span class="text-warning">87.5%</span></td>
+                                                <td>3.8 hours</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Training</td>
+                                                <td>28</td>
+                                                <td>28</td>
+                                                <td><span class="text-success">100%</span></td>
+                                                <td>2.5 hours</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Maintenance tab -->
+                            <div class="tab-pane fade" id="maintenance-tab">
+                                <h5 class="card-title">Maintenance Schedule</h5>
+                                <div class="accordion" id="maintenanceAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                                    data-bs-target="#scheduled">
+                                                <i class="fas fa-calendar-check me-2"></i> Scheduled (5)
+                                            </button>
+                                        </h2>
+                                        <div id="scheduled" class="accordion-collapse collapse show">
+                                            <div class="accordion-body">
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Engine Oil Change</span>
+                                                        <span class="badge bg-info">In 72 hours</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Radar Calibration</span>
+                                                        <span class="badge bg-info">In 5 days</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Hull Inspection</span>
+                                                        <span class="badge bg-info">In 2 weeks</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                                    data-bs-target="#overdue">
+                                                <i class="fas fa-exclamation-circle me-2 text-danger"></i> Overdue (2)
+                                            </button>
+                                        </h2>
+                                        <div id="overdue" class="accordion-collapse collapse">
+                                            <div class="accordion-body">
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Comm System Update</span>
+                                                        <span class="badge bg-danger">3 days overdue</span>
+                                                    </li>
+                                                    <li class="list-group-item d-flex justify-content-between">
+                                                        <span>Fire System Test</span>
+                                                        <span class="badge bg-danger">1 day overdue</span>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alerts Tab -->
+                            <div class="tab-pane fade" id="alerts-tab">
+                                <h5 class="card-title">System Alerts Log</h5>
+                                <div class="alert alert-info" role="alert">
+                                    <i class="fas fa-info-circle"></i> Showing last 24 hours of alerts
+                                </div>
+                                <div class="list-group">
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 text-danger">
+                                                <i class="fas fa-exclamation-triangle"></i> Engine Temperature High
+                                            </h6>
+                                            <small>2 hours ago</small>
+                                        </div>
+                                        <p class="mb-1">Starboard engine temperature exceeded 210°F</p>
+                                        <small>Auto-resolved after 15 minutes</small>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 text-warning">
+                                                <i class="fas fa-signal"></i> Signal Degradation
+                                            </h6>
+                                            <small>5 hours ago</small>
+                                        </div>
+                                        <p class="mb-1">Communication signal dropped to 65%</p>
+                                        <small>Switched to backup channel</small>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1 text-info">
+                                                <i class="fas fa-info-circle"></i> System Update
+                                            </h6>
+                                            <small>12 hours ago</small>
+                                        </div>
+                                        <p class="mb-1">Navigation system software updated to v2.4.1</p>
+                                        <small>Update completed successfully</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--Export options -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5>Export Reports</h5>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary" onclick="exportData('pdf')">
+                                <i class="fas fa-file-pdf"></i> PDF
+                            </button>
+                            <button type="button" class="btn btn-outline-success" onclick="exportData('excel')">
+                                <i class="fas fa-file-excel"></i> Excel
+                            </button>
+                            <button type="button" class="btn btn-outline-info" onclick="exportData('csv')">
+                                <i class="fas fa-file-csv"></i> CSV
+                            </button>
+                            <button type="button" class="btn btn-outline-warning" onclick="printReport()">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-4 py-3">
+        <div class="container-fluid">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <i class="fas fa-chart-line"></i> Reports Center
+                </div>
+                <div class="col-md-4">
+                    <a href="sitemap.html" class="text-decoration-none text-tactical">
+                        <i class="fas fa-sitemap"></i> Sitemap
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <small class="text-muted">Data Analytics v2.0</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Toggle for more systems data
+        function toggleMoreSystems() {
+            const historical = document.getElementById('historical-data');
+            const btnText = document.getElementById('systems-more-text');
+            
+            if (historical.style.display === 'none') {
+                historical.style.display = 'block';
+                btnText.textContent = 'Hide Historical Data';
+                drawPerformanceChart();
+            } else {
+                historical.style.display = 'none';
+                btnText.textContent = 'Show Historical Data';
+            }
+        }
+
+        // Simple chart drawing
+        function drawPerformanceChart() {
+            const canvas = document.getElementById('performanceChart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                ctx.strokeStyle = '#0ea5e9';
+                ctx.beginPath();
+                ctx.moveTo(0, 50);
+                ctx.lineTo(100, 45);
+                ctx.lineTo(200, 30);
+                ctx.lineTo(300, 35);
+                ctx.lineTo(400, 20);
+                ctx.stroke();
+            }
+        }
+
+        //Sort table
+        function sortTable(column) {
+            console.log('Sorting by column:', column);
+            // Add sorting logic here
+        }
+
+        // Apply filters
+        function applyFilters() {
+            const reportType = document.getElementById('reportType').value;
+            const dateFrom = document.getElementById('dateFrom').value;
+            const dateTo = document.getElementById('dateTo').value;
+            
+            console.log('Applying filters:', { reportType, dateFrom, dateTo });
+            alert('Filters applied! Refreshing data...');
+        }
+
+        // Export functions
+        function exportData(format) {
+            alert(`Exporting report as ${format.toUpperCase()}...`);
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function generateReport() {
+            alert('Generating comprehensive report... This may take a few moments.');
+        }
+    </script>
+</body>
+</html>
